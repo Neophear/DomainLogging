@@ -1,0 +1,10 @@
+﻿CREATE TABLE [dbo].[ComputerInfo]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [Name] NVARCHAR(50) NOT NULL, 
+    [Model] NVARCHAR(100) NOT NULL, 
+    [OS] NVARCHAR(100) NULL, 
+    [SerialNumber] NVARCHAR(50) NULL,
+	[TeamViewerId] NVARCHAR(50) NULL,
+    [LastAlive] DATETIME NOT NULL
+)
