@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Management;
 using Microsoft.Win32;
@@ -15,11 +16,6 @@ namespace DomainLogging
             WriteLog(String.Join(" ", args));
         }
 
-        static string CutString(string s, int l)
-        {
-            return s.Length <= l ? s : s.Substring(0, l);
-        }
-
         private static void WriteLog(string args)
         {
             try
@@ -31,6 +27,12 @@ namespace DomainLogging
                 dal.AddParameter("@Model", GetWMIValue("Win32_ComputerSystem", "Model"), DbType.String);
                 dal.AddParameter("@OS", GetWMIValue("Win32_OperatingSystem", "Caption"), DbType.String);
                 dal.AddParameter("@SerialNumber", GetWMIValue("Win32_BIOS", "SerialNumber"), DbType.String);
+                dal.AddParameter("@CPU", GetWMIValue("Win32_Processor", "Name"), DbType.String);
+                dal.AddParameter("@CPUCores", GetWMIValue("Win32_Processor", "NumberOfCores"), DbType.String);
+                dal.AddParameter("@RAM", (Int64.Parse(GetWMIValue("Win32_PhysicalMemory", "Capacity")) / 1073741824), DbType.String);
+                dal.AddParameter("@DiskType", GetWMIValue("Win32_OperatingSystem", "Caption").Contains("7") ? "Unknown" : (GetWMIValue("MSFT_PhysicalDisk", "MediaType", @"\\.\root\microsoft\windows\storage") == "3" ? "HDD" : "SSD"), DbType.String);
+                dal.AddParameter("@DiskSize", (int)((DriveInfo.GetDrives()).FirstOrDefault(i => i.Name == @"C:\").TotalSize / 1073741824), DbType.String);
+                dal.AddParameter("@GFX", GetWMIValue("Win32_DisplayConfiguration", "DeviceName"), DbType.String);
                 dal.AddParameter("@TeamViewerId", GetTeamViewerId(), DbType.String);
                 dal.AddParameter("@Args", args, DbType.String);
                 dal.ExecuteStoredProcedure("WriteLog");
@@ -50,11 +52,24 @@ namespace DomainLogging
                 return key.ToString();
         }
 
-        private static string GetWMIValue(string wminame, string property)
+        private static string GetWMIValue(string wminame, string property, string scope = "")
         {
-            var name = (from x in new ManagementObjectSearcher($"SELECT {property} FROM {wminame}").Get().Cast<ManagementObject>()
-                        select x.GetPropertyValue(property)).FirstOrDefault();
-            return name != null ? name.ToString() : "Unknown";
+            try
+            {
+                var sc = new ManagementScope(scope);
+                sc.Connect();
+
+                var searcher = new ManagementObjectSearcher($"SELECT {property} FROM {wminame}");
+                searcher.Scope = sc;
+
+                var name = (from x in searcher.Get().Cast<ManagementObject>()
+                            select x.GetPropertyValue(property)).FirstOrDefault();
+                return name != null ? name.ToString() : "Unknown";
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
         }
     }
 

@@ -15,28 +15,28 @@ namespace DomainLoggingView
             InitializeComponent();
 
             presets.Add(new Preset { Name = "Select fra Log", Text = "SELECT * FROM [CompleteLog] ORDER BY [TimeStamp] DESC" });
-            presets.Add(new Preset { Name = "Select fra CustomLog", Text = "SELECT * FROM [CompleteCustomLog] ORDER BY [TimeStamp] DESC" });
+            presets.Add(new Preset { Name = "Select fra CustomLog", Text = "SELECT * FROM [CustomLog] ORDER BY [TimeStamp] DESC" });
             presets.Add(new Preset { Name = "Find alt om MANR", Text = "SELECT * FROM [CompleteLog] WHERE [Username] = '123456'" });
-            presets.Add(new Preset { Name = "Find alt om Computer", Text = "SELECT * FROM [CompleteLog] WHERE [ComputerName] = 'TRR-CZC1234'" });
-            presets.Add(new Preset { Name = "Find alle logins", Text = "SELECT * FROM [CompleteLog] WHERE [Action] = 'Logon'" });
+            presets.Add(new Preset { Name = "Find alt om Computer", Text = "SELECT * FROM [CompleteLog] WHERE [Name] = 'TRR-CZC1234'" });
+            presets.Add(new Preset { Name = "Find alle logins", Text = "SELECT * FROM [CompleteLog] WHERE [Parameters] = '/Logon'" });
             presets.Add(new Preset { Name = "Få onlinetid af computer på dato", Text = "SELECT dbo.GetOnlineMinutes('TRR-CZC1234', '2017-01-01')" });
-            presets.Add(new Preset { Name = "Få onlinetid af computere i dag", Text = "SELECT DISTINCT [ComputerName], dbo.GetOnlineMinutes([ComputerName], GETDATE()) AS [Minutes] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, GETDATE())" });
+            presets.Add(new Preset { Name = "Få onlinetid af computere i dag", Text = "SELECT DISTINCT [Name], dbo.GetOnlineMinutes([Name], GETDATE()) AS [Minutes] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, GETDATE())" });
             presets.Add(new Preset { Name = "Hent log for flere computere i en datoperiode", Text = 
 @"SELECT
-    [ComputerName], [TimeStamp], [Action]
+    [Name], [TimeStamp], [Action]
 FROM
     [CompleteLog]
 WHERE 
-    ([ComputerName] = 'TRR-CZC238BVQN' OR
-    [ComputerName] = 'TRR-CZC23864BB' OR
-    [ComputerName] = 'TRR-CZC23864BF' OR
-    [ComputerName] = 'TRR-CZC23864CB' OR
-    [ComputerName] = 'TRR-CZC238BVP8' OR
-    [ComputerName] = 'TRR-CZC238BVPM' OR
-    [ComputerName] = 'TRR-CZC23864BK' OR
-    [ComputerName] = 'TRR-CZC23864JY' OR
-    [ComputerName] = 'TRR-CZC23864DD' OR
-    [ComputerName] = 'TRR-CZC238BVP3') AND
+    ([Name] = 'TRR-CZC238BVQN' OR
+    [Name] = 'TRR-CZC23864BB' OR
+    [Name] = 'TRR-CZC23864BF' OR
+    [Name] = 'TRR-CZC23864CB' OR
+    [Name] = 'TRR-CZC238BVP8' OR
+    [Name] = 'TRR-CZC238BVPM' OR
+    [Name] = 'TRR-CZC23864BK' OR
+    [Name] = 'TRR-CZC23864JY' OR
+    [Name] = 'TRR-CZC23864DD' OR
+    [Name] = 'TRR-CZC238BVP3') AND
     Convert(date,[TimeStamp]) >= '2017-02-20'
     AND
     Convert(date,[TimeStamp]) <= '2017-02-24'" });
@@ -44,15 +44,15 @@ WHERE
 @"DECLARE @MandagIUgen DATE = '2017-02-20'
 DECLARE @coms VARCHAR(250) = 'TRR-CZC238BVQN,TRR-CZC23864BB,TRR-CZC23864BF,TRR-CZC23864CB,TRR-CZC238BVP8,TRR-CZC238BVPM,TRR-CZC23864BK,TRR-CZC23864JY,TRR-CZC23864DD,TRR-CZC238BVP3'
 DECLARE @dt1 DATE = @MandagIUgen;DECLARE @dt2 DATE = DATEADD(DAY, 1, @dt1);DECLARE @dt3 DATE = DATEADD(DAY, 1, @dt2);DECLARE @dt4 DATE = DATEADD(DAY, 1, @dt3);DECLARE @dt5 DATE = DATEADD(DAY, 1, @dt4)
-SELECT DISTINCT [ComputerName], dbo.GetOnlineMinutes([ComputerName], @dt1) AS [Minutes], @dt1 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt1) AND @coms LIKE ('%' + [ComputerName] + '%')
+SELECT DISTINCT [Name], dbo.GetOnlineMinutes([Name], @dt1) AS [Minutes], @dt1 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt1) AND @coms LIKE ('%' + [Name] + '%')
 UNION
-SELECT DISTINCT [ComputerName], dbo.GetOnlineMinutes([ComputerName], @dt2) AS [Minutes], @dt2 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt2) AND @coms LIKE ('%' + [ComputerName] + '%')
+SELECT DISTINCT [Name], dbo.GetOnlineMinutes([Name], @dt2) AS [Minutes], @dt2 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt2) AND @coms LIKE ('%' + [Name] + '%')
 UNION
-SELECT DISTINCT [ComputerName], dbo.GetOnlineMinutes([ComputerName], @dt3) AS [Minutes], @dt3 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt3) AND @coms LIKE ('%' + [ComputerName] + '%')
+SELECT DISTINCT [Name], dbo.GetOnlineMinutes([Name], @dt3) AS [Minutes], @dt3 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt3) AND @coms LIKE ('%' + [Name] + '%')
 UNION
-SELECT DISTINCT [ComputerName], dbo.GetOnlineMinutes([ComputerName], @dt4) AS [Minutes], @dt4 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt4) AND @coms LIKE ('%' + [ComputerName] + '%')
+SELECT DISTINCT [Name], dbo.GetOnlineMinutes([Name], @dt4) AS [Minutes], @dt4 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt4) AND @coms LIKE ('%' + [Name] + '%')
 UNION
-SELECT DISTINCT [ComputerName], dbo.GetOnlineMinutes([ComputerName], @dt5) AS [Minutes], @dt5 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt5) AND @coms LIKE ('%' + [ComputerName] + '%')
+SELECT DISTINCT [Name], dbo.GetOnlineMinutes([Name], @dt5) AS [Minutes], @dt5 AS [Date] FROM [CompleteLog] WHERE CONVERT(DATE, [TimeStamp]) = CONVERT(DATE, @dt5) AND @coms LIKE ('%' + [Name] + '%')
 ORDER BY [Date], [Minutes]"});
 
             cbbPresets.DataSource = presets;
